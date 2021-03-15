@@ -44,16 +44,36 @@ router.get('/:contactId', async (req, res, next) => {
   }
 })
 
-router.post('/', async (req, res, next) => {
+router.post('/', async (req, res, next) => { 
+  // Если в body нет каких-то обязательных полей, возарщает json с ключом {"message": "missing required name field"} и статусом 400
   try {
-    const contacts = await addContact(req.body)
-    res.json({
-      status: 'success',
-      code: 201,
-      data: {
-        contacts,
-      },
-    })
+    if (!req.body.name || !req.body.email || !req.body.phone) {
+      let errorMessage = 'missing required'
+      if (!req.body.name) {
+        errorMessage += ' name'
+      } 
+      if (!req.body.email) {
+        errorMessage += ' email'
+      }
+      if (!req.body.phone) {
+        errorMessage += ' phone'
+      }
+      errorMessage += ' field'
+      return res.status(400).json({
+        status: 'error',
+        code: 404,
+        message: errorMessage,
+      })
+    } else {
+      const contact = await addContact(req.body)
+      res.json({
+        status: 'success',
+        code: 201,
+        data: {
+          contact,
+        },
+      })
+    }
   } catch (err) {
     next(err)
   }
@@ -64,7 +84,7 @@ router.delete('/:contactId', async (req, res, next) => {
     const contact = await removeContact(req.params.contactId)
     if (contact) {
       res.json({
-        status: 'success',
+        status: 'contact deleted',
         code: 200,
         data: {
           contact
@@ -85,6 +105,13 @@ router.delete('/:contactId', async (req, res, next) => {
 router.patch('/:contactId', async (req, res, next) => {
   try {
     const contact = await updateContact(req.params.contactId, req.body)
+    if (!req.body) {
+      res.status(400).json({
+        status: 'error',
+        code: 400,
+        message: 'missing fields',
+      })
+    }
     if (contact) {
       res.json({
         status: 'success',
@@ -97,7 +124,7 @@ router.patch('/:contactId', async (req, res, next) => {
       res.status(404).json({
         status: 'error',
         code: 404,
-        message: 'Not found contact',
+        message: 'Not found',
       })
     }
   } catch (err) {
