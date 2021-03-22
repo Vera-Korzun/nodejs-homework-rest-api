@@ -6,7 +6,6 @@ const { listContacts,
 
 const get = async (req, res, next) => {
   try {
-    console.log('contacts', contacts)
     const contacts = await listContacts()
     res.json({
       status: 'success',
