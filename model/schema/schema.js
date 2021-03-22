@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { Schema, model } = mongoose
+const { Schema } = mongoose
 
 const contactSchema = new Schema(
   {
@@ -25,7 +25,6 @@ const contactSchema = new Schema(
       type: String,
       minlength: 3,
       maxlength: 7,
-      required: [true, 'Subscription is required'],
     },
     password: {
       type: String,
@@ -41,6 +40,6 @@ const contactSchema = new Schema(
   { versionKey: false, timestamps: true }
 )
 
-const Contact = new model('Contact', contactSchema)
-
+// eslint-disable-next-line new-cap
+const Contact = mongoose.model('Contact', contactSchema)
 module.exports = Contact
