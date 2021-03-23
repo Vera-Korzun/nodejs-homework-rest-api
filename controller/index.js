@@ -1,8 +1,10 @@
-const { listContacts,
+const {
+  listContacts,
   getContactById,
   removeContact,
   addContact,
-  updateContact } = require('../model/index')
+  updateContact,
+} = require('../model/index')
 
 const get = async (req, res, next) => {
   try {
@@ -48,7 +50,7 @@ const add = async (req, res, next) => {
       let errorMessage = 'missing required'
       if (!req.body.name) {
         errorMessage += ' name'
-      } 
+      }
       if (!req.body.email) {
         errorMessage += ' email'
       }
