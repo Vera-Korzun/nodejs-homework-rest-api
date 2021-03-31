@@ -23,15 +23,9 @@ const contactSchema = new Schema(
     },
     subscription: {
       type: String,
-      minlength: 3,
-      maxlength: 7,
-      enum: ['free', 'pro', 'premium'],
-      default: 'free',
     },
     password: {
       type: String,
-      minlength: 5,
-      maxlength: 15,
       required: [true, 'Password is required'],
     },
     token: {
@@ -46,6 +40,5 @@ const contactSchema = new Schema(
   { versionKey: false, timestamps: true }
 )
 
-// eslint-disable-next-line new-cap
 const Contact = mongoose.model('Contact', contactSchema)
 module.exports = Contact
