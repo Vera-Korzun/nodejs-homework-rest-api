@@ -25,17 +25,18 @@ const userSchema = new Schema(
       default: Subscription.FREE,
     },
     token: {
-      type: String
+      type: String,
+      default: null
     },
   },
   { versionKey: false, timestamps: true }
 )
 
-// userSchema.pre('save', async function (next) {
-//   if (!this.isModified('password')) return next()
-//   this.password = await bcrypt.hash(this.password, bcrypt.genSaltSync(SALT_FACTOR))
-//   next()
-// })
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next()
+  this.password = await bcrypt.hash(this.password, bcrypt.genSaltSync(SALT_FACTOR))
+  next()
+})
 
 userSchema.method.validPassword = async function(password) {
   return await bcrypt.compare(password, this.password)
