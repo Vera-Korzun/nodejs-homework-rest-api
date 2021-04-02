@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { Schema, SchemaTypes } = mongoose
+const { Subscription } = require('../../helpers/constants')
 
 const contactSchema = new Schema(
   {
@@ -23,6 +24,8 @@ const contactSchema = new Schema(
     },
     subscription: {
       type: String,
+      enum: [Subscription.FREE, Subscription.PRO, Subscription.PREMIUM],
+      default: Subscription.FREE,
     },
     password: {
       type: String,
@@ -35,6 +38,7 @@ const contactSchema = new Schema(
     owner: {
       type: SchemaTypes.ObjectId,
       ref: 'user',
+      required: true,
     }
   },
   { versionKey: false, timestamps: true }

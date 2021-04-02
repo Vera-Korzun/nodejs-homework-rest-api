@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken')
-const User = require('../model/schema/user')
-require('dotenv').config()
+const dotenv = require('dotenv')
+dotenv.config()
+const { findUserById, findUserByEmail, addUser, updateToken } = require('../model/users')
 const SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const reg = async (req, res, next) => {
   try {
     const { email } = req.body
-    const user = await User.findUserByEmail(email)
+    const user = await findUserByEmail({ email })
     if (user) {
       return res.status(409).json({
         status: 'error',
@@ -15,7 +16,7 @@ const reg = async (req, res, next) => {
         message: 'Email in use',
       })
     }
-    const newUser = await User.addUser(req.body)
+    const newUser = await addUser(req.body)
     return res.status(201).json({
       status: 'success',
       data: {
@@ -32,9 +33,9 @@ const reg = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
-    const user = await User.findUserById(email)
-    const isValidPassword = await user.validPassword(password)
-    if (!user || !isValidPassword) {
+    const user = await findUserByEmail({ email })
+    // const isValidPassword = await user.validPassword(password)
+    if (!user || !(await user.validPassword(password))) {
       return res.status(401).json({
         status: 'error',
         code: 401,
@@ -45,7 +46,7 @@ const login = async (req, res, next) => {
     const id = user._id
     const payload = { id }
     const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' })
-    await User.updateToken(id, token)
+    await updateToken(id, token)
     return res.status(200).json({
       status: 'success',
       code: 200,
@@ -61,7 +62,7 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
   try {
     const id = req.user.id
-    await User.updateToken(id, null)
+    await updateToken(id, null)
     return res.status(204).json({
       status: 'No Content',
       code: 204,
@@ -71,10 +72,10 @@ const logout = async (req, res, next) => {
     next(e)
   }
 }
-const getCurrentUser = async (req, res, next) => {
+const current = async (req, res, next) => {
   try {
     const { id, email, subscription } = req.user
-    const user = await User.findUserById(id)
+    const user = await findUserById(id)
     if (!user) {
       return res.status(401).json({
         status: 'error',
@@ -99,5 +100,5 @@ module.exports = {
   reg,
   login,
   logout,
-  getCurrentUser
+  current
 }
