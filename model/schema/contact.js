@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-const { Schema } = mongoose
+const { Schema, SchemaTypes } = mongoose
+const { Subscription } = require('../../helpers/constants')
 
 const contactSchema = new Schema(
   {
@@ -23,23 +24,25 @@ const contactSchema = new Schema(
     },
     subscription: {
       type: String,
-      minlength: 3,
-      maxlength: 7,
+      enum: [Subscription.FREE, Subscription.PRO, Subscription.PREMIUM],
+      default: Subscription.FREE,
     },
     password: {
       type: String,
-      minlength: 5,
-      maxlength: 15,
       required: [true, 'Password is required'],
     },
     token: {
       type: String,
       default: '',
+    },
+    owner: {
+      type: SchemaTypes.ObjectId,
+      ref: 'user',
+      required: true,
     }
   },
   { versionKey: false, timestamps: true }
 )
 
-// eslint-disable-next-line new-cap
 const Contact = mongoose.model('Contact', contactSchema)
 module.exports = Contact

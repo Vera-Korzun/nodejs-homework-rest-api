@@ -13,7 +13,7 @@ const get = async (req, res, next) => {
       status: 'success',
       code: 200,
       data: {
-        contacts,
+        ...contacts,
       },
     })
   } catch (err) {
@@ -44,7 +44,7 @@ const getById = async (req, res, next) => {
   }
 }
 
-const add = async (req, res, next) => { 
+const add = async (req, res, next) => {
   try {
     if (!req.body.name || !req.body.email || !req.body.phone) {
       let errorMessage = 'missing required'
@@ -64,7 +64,7 @@ const add = async (req, res, next) => {
         message: errorMessage,
       })
     } else {
-      const contact = await addContact(req.body)
+      const contact = await addContact({ ...req.body, owner: req.user.id })
       res.json({
         status: 'success',
         code: 201,
