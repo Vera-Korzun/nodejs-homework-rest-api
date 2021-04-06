@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
+const gravatar = require('gravatar')
 dotenv.config()
 const { findUserById, findUserByEmail, addUser, updateToken } = require('../model/users')
 const SECRET_KEY = process.env.JWT_SECRET_KEY
@@ -16,7 +17,8 @@ const reg = async (req, res, next) => {
         message: 'Email in use',
       })
     }
-    const newUser = await addUser(req.body)
+    const gravatarURL = gravatar.url(email, { protocol: 'https', s: '100' })
+    const newUser = await addUser({ ...req.body, gravatarURL })
     return res.status(201).json({
       status: 'success',
       data: {
