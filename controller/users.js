@@ -24,9 +24,7 @@ const reg = async (req, res, next) => {
       })
     }
     const gravatarURL = gravatar.url(email, { protocol: 'https', s: '100' })
-    console.log('gravatarURL', gravatarURL)
     const newUser = await addUser({ ...req.body, avatarURL: gravatarURL })
-    console.log('newUser', newUser)
     return res.status(201).json({
       status: 'success',
       data: {
