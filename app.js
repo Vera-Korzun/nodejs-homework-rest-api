@@ -4,7 +4,7 @@ const cors = require('cors')
 const path = require('path')
 
 const contactsRouter = require('./routes/api/contacts')
-const usersRouter = require('./routes/api/user')
+const usersRouter = require('./routes/api/users')
 
 const app = express()
 
@@ -16,7 +16,8 @@ app.use(express.json())
 
 app.use('/api/contacts', contactsRouter)
 app.use('/api/user', usersRouter)
-app.use('/avatars', express.static(path.join(__dirname, '/public/avatars')))
+// app.use('/avatars', express.static(path.join(__dirname, '/public/avatars')))
+app.use('/avatars', express.static(path.join(__dirname, 'public')))
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found' })
