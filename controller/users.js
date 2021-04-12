@@ -23,7 +23,7 @@ const reg = async (req, res, next) => {
         message: 'Email in use',
       })
     }
-    const gravatarURL = gravatar.url(email, { protocol: 'https', s: '100' })
+    const gravatarURL = gravatar.profile_url(email, { protocol: 'https', format: 'jpg' })
     const newUser = await addUser({ ...req.body, avatarURL: gravatarURL })
     return res.status(201).json({
       status: 'success',
@@ -117,7 +117,7 @@ const avatar = async (req, res, next) => {
     .autocrop()
     .cover(250, 250, Jimp.HORIZONTAL_ALIGN_CENTER || Jimp.VERTICAL_ALIGN_MIDDLE)
     .writeAsync(tempName)
-  const newName = path.join(uploadDir, `AVATAR${id}${path.extname(originalname)}`)
+  const newName = path.join(uploadDir, `AVATAR_${id}${path.extname(originalname)}`)
   try {
     await fs.rename(tempName, newName)
     const user = await patchAvatar(id, newName)
