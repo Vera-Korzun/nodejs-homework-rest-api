@@ -29,7 +29,7 @@ const patchAvatar = async (id, avatar) => {
   return user
 }
 
-const findByVerifyToken = async ({ token }) => {
+const findByVerifyToken = async (token) => {
   const user = await User.findOne({ verifyToken: token })
   return user
 }
