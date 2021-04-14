@@ -5,8 +5,11 @@ const dotenv = require('dotenv')
 dotenv.config()
 const gravatar = require('gravatar')
 const Jimp = require('jimp')
-const { findUserById, findUserByEmail, addUser, updateToken, patchAvatar } = require('../model/users')
-const createFolderIsExist = require('../helpers/createFolder')
+const { v4: uuidv4 } = require('uuid')
+const { findUserById, findUserByEmail, addUser, updateToken, patchAvatar, findByVerifyToken, updateVerifyToken } = require('../model/users')
+const { createFolderIsExist } = require('../helpers/createFolder')
+const { sendVerifyMail } = require('../helpers/email')
+
 const SECRET_KEY = process.env.JWT_SECRET_KEY
 
 const uploadDir = path.join(process.cwd(), process.env.UPLOAD_DIR)
@@ -14,7 +17,7 @@ const uploadDir = path.join(process.cwd(), process.env.UPLOAD_DIR)
 const reg = async (req, res, next) => {
   try {
     const { email } = req.body
-    const user = await findUserByEmail({ email })
+    const user = await findUserByEmail(email)
     if (user) {
       return res.status(409).json({
         status: 'error',
@@ -23,14 +26,16 @@ const reg = async (req, res, next) => {
         message: 'Email in use',
       })
     }
+    const verifyToken = uuidv4()
     const gravatarURL = gravatar.profile_url(email, { protocol: 'https', format: 'jpg' })
-    const newUser = await addUser({ ...req.body, avatarURL: gravatarURL })
+    const newUser = await addUser({ ...req.body, avatarURL: gravatarURL, verifyToken })
+    await sendVerifyMail(verifyToken, email)
     return res.status(201).json({
       status: 'success',
       data: {
         user: {
           email: newUser.email,
-          subscription: newUser.subscription
+          subscription: newUser.subscription,
         },
       },
     })
@@ -42,9 +47,9 @@ const reg = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
-    const user = await findUserByEmail({ email })
+    const user = await findUserByEmail(email)
     // const isValidPassword = await user.validPassword(password)
-    if (!user || !(await user.validPassword(password))) {
+    if (!user || !(await user.validPassword(password)) || !user.verify) {
       return res.status(401).json({
         status: 'error',
         code: 401,
@@ -133,10 +138,32 @@ const avatar = async (req, res, next) => {
   }
 }
 
+const verify = async (req, res, next) => {
+  try {
+    const user = await findByVerifyToken(req.params.verificationToken)
+    if (user) {
+      await updateVerifyToken(user.id, true, null)
+      return res.status(200).json({
+        status: 'success',
+        code: 200,
+        message: 'Verification successful',
+      })
+    }
+    return res.status(404).json({
+      status: 'error',
+      code: 404,
+      message: 'User not foun',
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
 module.exports = {
   reg,
   login,
   logout,
   current,
-  avatar
+  avatar,
+  verify
 }

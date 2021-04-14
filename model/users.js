@@ -7,7 +7,7 @@ const findUserById = async (id) => {
 }
 
 const findUserByEmail = async (email) => {
-  const userByEmail = await User.findOne(email)
+  const userByEmail = await User.findOne({ email })
   // console.log('userByEmail', userByEmail)
   return userByEmail
 }
@@ -29,10 +29,22 @@ const patchAvatar = async (id, avatar) => {
   return user
 }
 
+const findByVerifyToken = async ({ token }) => {
+  const user = await User.findOne({ verifyToken: token })
+  return user
+}
+
+const updateVerifyToken = async (id, verify, verifyToken) => {
+  const user = await User.findByIdAndUpdate(id, { verify, verifyToken })
+  return user
+}
+
 module.exports = {
   findUserById,
   findUserByEmail,
   addUser,
   updateToken,
-  patchAvatar
+  patchAvatar,
+  findByVerifyToken,
+  updateVerifyToken
 }
