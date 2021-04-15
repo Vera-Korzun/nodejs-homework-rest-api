@@ -13,4 +13,4 @@ const createFolderIsExist = async (folder) => {
   }
 }
 
-module.exports = createFolderIsExist
+module.exports = { createFolderIsExist }
